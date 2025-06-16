@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Food Dispenser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-utensils"></i>
+            <h1>Food Dispenser</h1>
+        </div>
+        
+        <div class="form-container">
+            <h2>Create Account</h2>
+            <p>Join us to start ordering delicious food</p>
+            
+            <form id="register-form" method="POST" action="/register">
+                <div class="input-group">
+                    <label for="register-username">
+                        <i class="fas fa-user"></i>
+                    </label>
+                    <input type="text" id="register-username" name="username" placeholder="Username" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="register-password">
+                        <i class="fas fa-lock"></i>
+                    </label>
+                    <input type="password" id="register-password" name="password" placeholder="Password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('register-password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <div class="input-group">
+                    <label for="confirm-password">
+                        <i class="fas fa-lock"></i>
+                    </label>
+                    <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm Password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('confirm-password')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <div class="password-strength">
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="strength-bar"></div>
+                    </div>
+                    <span id="strength-text">Password Strength</span>
+                </div>
+                
+                <div class="terms">
+                    <label>
+                        <input type="checkbox" name="terms" required> I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="register-btn">
+                    <i class="fas fa-user-plus"></i> Register
+                </button>
+            </form>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flashes">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <div class="login-link">
+            Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+        </div>
+        
+        <div id="register-error" class="error-message"></div>
+    </div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const toggleBtn = passwordInput.nextElementSibling.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+        
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            // Length check
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            
+            // Character variety checks
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            return Math.min(strength, 5);
+        }
+        
+        document.getElementById('register-password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strength = checkPasswordStrength(password);
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('strength-text');
+            
+            strengthBar.style.width = `${strength * 20}%`;
+            
+            if (strength <= 1) {
+                strengthBar.style.backgroundColor = '#ff4444';
+                strengthText.textContent = 'Very Weak';
+            } else if (strength <= 2) {
+                strengthBar.style.backgroundColor = '#ffbb33';
+                strengthText.textContent = 'Weak';
+            } else if (strength <= 3) {
+                strengthBar.style.backgroundColor = '#00C851';
+                strengthText.textContent = 'Good';
+            } else if (strength <= 4) {
+                strengthBar.style.backgroundColor = '#33b5e5';
+                strengthText.textContent = 'Strong';
+            } else {
+                strengthBar.style.backgroundColor = '#4285F4';
+                strengthText.textContent = 'Very Strong';
+            }
+        });
+        
+        // Traditional form submission with validation
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorElement = document.getElementById('register-error');
+            
+            // Client-side validation
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                errorElement.textContent = 'Passwords do not match';
+                return;
+            }
+            
+            if (password.length < 8) {
+                e.preventDefault();
+                errorElement.textContent = 'Password must be at least 8 characters';
+                return;
+            }
+            
+            // If validation passes, the form will submit normally
+            errorElement.textContent = '';
+        });
+    </script>
+</body>
+</html>

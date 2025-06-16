@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Food Dispenser</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #7b1fa2;
+            --primary-light: #bb86fc;
+            --dark-bg: #121212;
+            --card-bg: #1e1e1e;
+            --text-light: #e0e0e0;
+            --text-muted: #aaaaaa;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--dark-bg);
+            color: var(--text-light);
+        }
+        
+        .main-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: var(--card-bg);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon {
+            font-size: 24px;
+            color: var(--primary-light);
+            margin-right: 10px;
+        }
+        
+        .logo-text {
+            font-size: 18px;
+            margin: 0;
+            color: white;
+        }
+        
+        .user-profile {
+            padding: 0 20px 20px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .avatar {
+            font-size: 40px;
+            color: var(--primary-light);
+            margin-right: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .username {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .user-email {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+        }
+        
+        .nav-item a {
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-item.active a {
+            color: var(--primary-light);
+        }
+        
+        .nav-item.logout {
+            margin-top: auto;
+        }
+        
+        .content-area {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .highlight {
+            color: var(--primary-light);
+        }
+        
+        .subtitle {
+            color: var(--text-muted);
+            margin: 5px 0 0;
+        }
+        
+        .quick-actions {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-header h3 {
+            margin: 0;
+            color: var(--primary-light);
+        }
+        
+        .action-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .action-btn:hover {
+            background: var(--primary-light);
+        }
+        
+        .order-history {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .order-history table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .order-history th, .order-history td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+        
+        .order-history th {
+            color: var(--primary-light);
+            font-weight: 500;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+        
+        .status-confirmed {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        
+        .status-collected {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
+        }
+        
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .order-date {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .qr-code-small {
+            width: 50px;
+            height: 50px;
+            background: white;
+            padding: 3px;
+        }
+        
+        .download-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .download-btn:hover {
+            background: #66BB6A;
+        }
+        
+        .no-orders {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <i class="fas fa-utensils logo-icon"></i>
+                    <h1 class="logo-text">FoodDispenser</h1>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="username">{{ username }}</span>
+                        <span class="user-email">{{ username }}@fooddispenser.com</span>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="#"><i class="fas fa-home"></i> Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('index') }}"><i class="fas fa-utensils"></i> Order Food</a>
+                </li>
+                <li class="nav-item logout">
+                    <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="content-area">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            
+            <header class="main-header">
+                <div>
+                    <h2>Welcome back, <span class="highlight">{{ username }}</span>! 👋</h2>
+                    <p class="subtitle">Ready to place your next order?</p>
+                </div>
+            </header>
+            
+            <div class="quick-actions">
+                <div class="section-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <button class="action-btn" onclick="window.location.href='{{ url_for('index') }}'">
+                    <i class="fas fa-plus"></i> New Order
+                </button>
+            </div>
+            
+            <div class="order-history">
+                <div class="section-header">
+                    <h3>Recent Orders</h3>
+                </div>
+                
+                {% if orders %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>QR Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <div>#{{ order.booking_id }}</div>
+                                <div class="order-date">
+                                    {% if order.created_at is string %}
+                                        {{ order.created_at }}
+                                    {% else %}
+                                        {{ order.created_at.strftime('%d %b %Y') }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="order-items">
+                                    {% for item in order.food_items %}
+                                    <div class="order-item">
+                                        <span>{{ item.name }}</span>
+                                        <span>{{ item.quantity }} × ₹{{ item.price }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>₹{{ order.amount }}</td>
+                            <td>
+                                <span class="status status-{{ order.status }}">
+                                    {{ order.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if order.qr_code %}
+                                <div style="text-align: center;">
+                                    <img src="data:image/png;base64,{{ order.qr_code }}" class="qr-code-small">
+                                    <button class="download-btn" 
+                                            onclick="downloadQR('{{ order.qr_code }}', 'order_{{ order.booking_id }}')">
+                                        Download
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="no-orders">
+                    <p>No orders found. Place your first order now!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadQR(qrCode, filename) {
+            const link = document.createElement('a');
+            link.href = `data:image/png;base64,${qrCode}`;
+            link.download = `${filename}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
