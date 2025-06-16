@@ -10,6 +10,7 @@ from datetime import datetime
 import os
 import logging
 import secrets
+import razorpay
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -45,6 +46,12 @@ try:
 except Exception as e:
     logger.error(f"Firebase init error: {str(e)}")
     db = None
+
+# Initialize Razorpay
+razorpay_client = razorpay.Client(auth=(
+    os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_YOUR_KEY_ID'),
+    os.environ.get('RAZORPAY_KEY_SECRET', 'YOUR_KEY_SECRET')
+))
 
 # Helper Functions
 def hash_password(password):
@@ -178,7 +185,8 @@ def home_page():
         
         return render_template('home.html', 
                             username=username,
-                            orders=orders[-5:])
+                            orders=orders[-5:],
+                            razorpay_key_id=os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_YOUR_KEY_ID'))
     except Exception as e:
         logger.error(f"Error loading home: {str(e)}")
         flash('Error loading dashboard', 'danger')
@@ -188,7 +196,9 @@ def home_page():
 def index():
     if not validate_session():
         return redirect(url_for('login'))
-    return render_template('index.html', username=session['username'])
+    return render_template('index.html', 
+                          username=session['username'],
+                          razorpay_key_id=os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_YOUR_KEY_ID'))
 
 @app.route("/order_history")
 def order_history():
@@ -258,12 +268,40 @@ def create_order():
         return jsonify({
             "status": "success",
             "order_id": order_id,
-            "qr_code": qr_base64
+            "qr_code": qr_base64,
+            "amount": total
         }), 201
 
     except Exception as e:
         logger.error(f"Order creation failed: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
+
+@app.route("/api/create_razorpay_order", methods=["POST"])
+def create_razorpay_order():
+    if not validate_session():
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        data = request.get_json()
+        order_id = data.get('order_id')
+        amount = data.get('amount')
+        
+        razorpay_order = razorpay_client.order.create({
+            'amount': int(amount * 100),  # Convert to paise
+            'currency': 'INR',
+            'receipt': order_id,
+            'payment_capture': 1
+        })
+        
+        return jsonify({
+            "id": razorpay_order["id"],
+            "amount": razorpay_order["amount"],
+            "currency": razorpay_order["currency"]
+        })
+        
+    except Exception as e:
+        logger.error(f"Razorpay error: {str(e)}")
+        return jsonify({"error": "Payment processing failed"}), 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
