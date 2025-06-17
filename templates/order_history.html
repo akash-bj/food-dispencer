@@ -5,110 +5,233 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order History</title>
     <style>
+        :root {
+            --primary: #7b1fa2;
+            --primary-dark: #6a1b9a;
+            --primary-light: #9c27b0;
+            --secondary: #4caf50;
+            --accent: #ff9800;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #e0e0e0;
+            --lighter: #f5f5f5;
+            --danger: #f44336;
+        }
+        
+        * {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 24 30"><path fill="%237b1fa2" d="M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z M12,20 C7.58,20 4,16.42 4,12 C4,7.58 7.58,4 12,4 C16.42,4 20,7.58 20,12 C20,16.42 16.42,20 12,20 Z"/></svg>'), auto;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background: #121212;
-            color: #e0e0e0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--light);
+            background-attachment: fixed;
+            position: relative;
         }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(123, 31, 162, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(76, 175, 80, 0.1) 0%, transparent 40%);
+            z-index: -1;
+        }
+        
         h2 {
-            color: #bb86fc;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
+        
         .order-card {
-            background: #1e1e1e;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            border: 1px solid #333;
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
+        
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
         .order-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
         }
+        
         .order-id {
             font-weight: bold;
-            color: #bb86fc;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
+        
         .order-status {
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 5px 12px;
+            border-radius: 20px;
             font-size: 14px;
+            font-weight: 600;
         }
+        
         .status-confirmed {
-            background: #4caf50;
-            color: white;
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--secondary);
         }
+        
         .status-collected {
-            background: #2196f3;
-            color: white;
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196F3;
         }
+        
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+        
         .order-details {
-            margin-top: 10px;
+            margin-top: 15px;
         }
+        
         .food-item {
             display: flex;
             justify-content: space-between;
-            margin: 5px 0;
-            padding: 5px;
-            background: #252525;
-            border-radius: 4px;
+            margin: 10px 0;
+            padding: 12px;
+            background: rgba(45, 45, 69, 0.6);
+            border-radius: 10px;
+            transition: all 0.3s ease;
         }
+        
+        .food-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
         .order-total {
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 15px;
             text-align: right;
-            color: #bb86fc;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(30, 30, 46, 0.6);
         }
+        
         .order-date {
-            color: #aaa;
+            color: var(--text-tertiary);
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(45, 45, 69, 0.6);
+            border-radius: 10px;
         }
+        
         .back-btn {
             display: block;
-            width: 100px;
+            width: 150px;
             text-align: center;
-            padding: 8px;
-            margin: 20px auto;
-            background: #7b1fa2;
+            padding: 12px;
+            margin: 30px auto;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(123, 31, 162, 0.3);
         }
+        
         .back-btn:hover {
-            background: #9c27b0;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.4);
         }
+        
         .no-orders {
             text-align: center;
-            color: #aaa;
+            color: var(--text-tertiary);
             margin-top: 50px;
+            font-size: 1.2rem;
         }
+        
         .nav-link {
             display: inline-block;
-            margin: 10px;
-            color: #bb86fc;
+            margin: 15px;
+            color: var(--primary-light);
             text-decoration: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
         }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-light);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
         .qr-code-small {
-            width: 60px;
-            height: 60px;
-            margin: 5px 0;
+            width: 80px;
+            height: 80px;
+            margin: 15px auto;
+            padding: 5px;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
             background: white;
-            padding: 3px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-container {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <div style="text-align: center;">
-        <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+    <div class="nav-container">
+        <a href="{{ url_for('home_page') }}" class="nav-link">Home</a>
         <a href="{{ url_for('order_history') }}" class="nav-link">Order History</a>
         <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
     </div>
@@ -119,7 +242,7 @@
         {% for order in orders %}
         <div class="order-card">
             <div class="order-header">
-                <span class="order-id">Order #{{ order.created_at.strftime('%Y%m%d') }}-{{ loop.index }}</span>
+                <span class="order-id">Order #{{ order.id }}</span>
                 <span class="order-status status-{{ order.status }}">
                     {{ order.status|title }}
                 </span>
@@ -142,11 +265,11 @@
                 </div>
                 
                 {% if order.qr_code %}
-                <div style="text-align: center; margin-top: 10px;">
+                <div style="text-align: center; margin-top: 20px;">
                     <img src="data:image/png;base64,{{ order.qr_code }}" class="qr-code-small">
                     <div>
-                        <button onclick="downloadQR('{{ order.qr_code }}', 'order_{{ order.id }}')" 
-                                style="background: #4caf50; padding: 5px 10px; font-size: 12px;">
+                        <button class="download-btn" 
+                                onclick="downloadQR('{{ order.qr_code }}', 'order_{{ order.id }}')">
                             Download QR
                         </button>
                     </div>
@@ -170,6 +293,19 @@
             link.click();
             document.body.removeChild(link);
         }
+        
+        // Add hover effect to all buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px)';
+                this.style.boxShadow = '0 6px 12px rgba(0, 0, 0, 0.2)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            });
+        });
     </script>
 </body>
 </html>
