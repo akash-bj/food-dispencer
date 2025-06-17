@@ -95,31 +95,21 @@ def validate_order_data(data):
 def home():
     return redirect(url_for('login'))
 
-@app.route("/login", methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if validate_session():
-        return redirect(url_for('home_page'))
-    
     if request.method == 'POST':
-        username = request.form.get('username', '').strip()
-        password = request.form.get('password', '').strip()
-        
-        if not username or not password:
-            flash('Username and password are required', 'danger')
-            return redirect(url_for('login'))
-        
-        try:
-            user_ref = db.collection('users').document(username).get()
-            if user_ref.exists and user_ref.to_dict().get('password') == hash_password(password):
-                session['username'] = username
-                return redirect(url_for('home_page'))
-            flash('Invalid username or password', 'danger')
-        except Exception as e:
-            logger.error(f"Login error: {str(e)}")
-            flash('Login error', 'danger')
-    
-    return render_template('login.html')
+        username = request.form.get('username')
+        password = request.form.get('password')
 
+        # Example check (replace with DB logic)
+        if username == 'akash' and password == 'akash555@':
+            session['username'] = username
+            return redirect(url_for('home_page'))
+        else:
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
+
+    return render_template('login.html')
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if validate_session():
