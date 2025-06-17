@@ -80,36 +80,7 @@
             }
         }
         
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            const errorElement = document.getElementById('login-error');
-            
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        'username': username,
-                        'password': password
-                    })
-                });
-                
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else {
-                    const data = await response.json();
-                    errorElement.textContent = data.error || 'Login failed. Please try again.';
-                }
-            } catch (error) {
-                errorElement.textContent = 'An error occurred. Please try again.';
-                console.error('Login error:', error);
-            }
-        });
+
     </script>
 </body>
 </html>
