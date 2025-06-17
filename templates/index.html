@@ -4,160 +4,364 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Order System</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
+        :root {
+            --primary: #7b1fa2;
+            --primary-dark: #6a1b9a;
+            --primary-light: #9c27b0;
+            --secondary: #4caf50;
+            --accent: #ff9800;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #e0e0e0;
+            --lighter: #f5f5f5;
+            --danger: #f44336;
+        }
+        
+        * {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" viewBox="0 0 24 30"><path fill="%237b1fa2" d="M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z M12,20 C7.58,20 4,16.42 4,12 C4,7.58 7.58,4 12,4 C16.42,4 20,7.58 20,12 C20,16.42 16.42,20 12,20 Z"/></svg>'), auto;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 480px;
             margin: 0 auto;
             padding: 15px;
-            background: #121212;
-            color: #e0e0e0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: var(--light);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(123, 31, 162, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(76, 175, 80, 0.1) 0%, transparent 40%);
+            z-index: -1;
+        }
+        
         .card {
-            background: #1e1e1e;
-            padding: 18px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            margin-bottom: 18px;
-            border: 1px solid #333;
+            background: rgba(30, 30, 46, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                transparent 0%,
+                rgba(123, 31, 162, 0.1) 50%,
+                transparent 100%
+            );
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+        
         input {
             width: 100%;
-            padding: 10px;
-            margin: 8px 0 15px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            font-size: 15px;
-            background: #2d2d2d;
-            color: #fff;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(45, 45, 69, 0.7);
+            color: var(--lighter);
+            transition: all 0.3s ease;
         }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.3);
+        }
+        
         .food-item {
-            margin: 12px 0;
-            padding: 12px;
-            border-bottom: 1px solid #333;
-            font-size: 15px;
-            background: #252525;
-            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(37, 37, 58, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
+        
+        .food-item:hover {
+            background: rgba(45, 45, 69, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
         button {
-            padding: 8px 16px;
+            padding: 10px 20px;
             margin: 0 5px;
-            background: #7b1fa2;
+            background: var(--primary);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 15px;
-            transition: background 0.2s;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
-        button:hover {
-            background: #9c27b0;
-        }
-        #order-btn {
-            background: #7b1fa2;
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-light), var(--primary-dark));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        button:hover::before {
+            opacity: 1;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(123, 31, 162, 0.4);
+        }
+        
+        #order-btn {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
             font-weight: bold;
+            letter-spacing: 0.5px;
         }
+        
         #order-btn:hover {
-            background: #9c27b0;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(123, 31, 162, 0.5);
         }
+        
         #order-btn:disabled {
             background: #4a4a4a;
             color: #777;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
         }
+        
         .qr-container {
             text-align: center;
-            margin: 15px 0;
+            margin: 20px 0;
         }
+        
         .qr-code {
             width: 200px;
             height: 200px;
             margin: 0 auto;
-            padding: 5px;
-            border: 1px solid #7b1fa2;
+            padding: 8px;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
             background: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
         }
+        
         #confirmation {
             display: none;
+            animation: fadeIn 0.6s ease forwards;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         h3 {
-            font-size: 20px;
-            margin: 8px 0 15px;
-            color: #bb86fc;
+            font-size: 24px;
+            margin: 10px 0 20px;
+            color: var(--primary-light);
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
+        
         h4 {
-            font-size: 17px;
-            margin: 8px 0 12px;
-            color: #bb86fc;
-        }
-        #total-price {
-            font-size: 17px;
+            font-size: 20px;
             margin: 15px 0;
+            color: var(--primary-light);
+            border-bottom: 2px solid rgba(123, 31, 162, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        #total-price {
+            font-size: 20px;
+            margin: 20px 0;
             font-weight: bold;
-            color: #bb86fc;
+            color: var(--primary-light);
+            text-align: center;
+            background: rgba(123, 31, 162, 0.1);
+            padding: 15px;
+            border-radius: 10px;
         }
+        
         label {
-            color: #bb86fc;
-            font-size: 15px;
+            color: var(--primary-light);
+            font-size: 16px;
+            font-weight: 500;
+            display: block;
+            margin-top: 15px;
         }
+        
         .food-item span {
-            color: #e0e0e0;
+            color: var(--light);
+            font-size: 16px;
         }
+        
         .qty {
             font-weight: bold;
-            color: #bb86fc;
-            margin: 0 5px;
-        }
-        .download-btn {
-            margin-top: 15px;
-            background: #4caf50;
-            width: 100%;
-            padding: 12px;
-        }
-        .download-btn:hover {
-            background: #66bb6a;
-        }
-        .nav-link {
-            display: inline-block;
-            margin: 10px;
-            color: #bb86fc;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .order-id {
+            color: var(--primary-light);
+            margin: 0 8px;
             font-size: 18px;
-            margin: 10px 0;
-            color: #ffffff;
-            background: #7b1fa2;
-            padding: 8px;
-            border-radius: 5px;
-        }
-        .error-message {
-            color: #ff5252;
-            margin: 10px 0;
+            min-width: 30px;
+            display: inline-block;
             text-align: center;
         }
-        #upi-payment {
-            display: none;
-            margin-top: 20px;
-        }
-        #upi-btn {
-            background: #3f51b5;
+        
+        .download-btn {
+            background: linear-gradient(45deg, var(--secondary), #2e7d32);
             width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .download-btn:hover {
+            background: linear-gradient(45deg, #66bb6a, #388e3c);
+        }
+        
+        .nav-link {
+            display: inline-block;
+            margin: 15px;
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-light);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .order-id {
+            font-size: 22px;
+            margin: 15px 0;
+            color: white;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
             padding: 12px;
-            margin-top: 10px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(123, 31, 162, 0.3);
         }
-        #upi-btn:hover {
-            background: #5c6bc0;
+        
+        .error-message {
+            color: var(--danger);
+            margin: 15px 0;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 10px;
+            background: rgba(244, 67, 54, 0.1);
+            border-radius: 8px;
         }
-        #upi-qr {
-            margin-top: 15px;
+        
+        #razorpay-payment {
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        #rzp-button {
+            background: linear-gradient(45deg, #3f51b5, #303f9f);
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        #rzp-button:hover {
+            background: linear-gradient(45deg, #5c6bc0, #3949ab);
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .nav-container {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(30, 30, 46, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <div style="text-align: center;">
+    <div class="nav-container">
         <a href="{{ url_for('home_page') }}" class="nav-link">Home</a>
         <a href="{{ url_for('order_history') }}" class="nav-link">Order History</a>
         <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
@@ -181,26 +385,26 @@
 
     <div class="card" id="confirmation">
         <h3>Order Confirmed</h3>
-        <div class="order-id" id="order-id-display"></div>
+        <div class="order-id pulse" id="order-id-display"></div>
         <div class="qr-container">
             <div class="qr-code" id="qr-code"></div>
             <p>Show this QR code at the counter</p>
             <button class="download-btn" id="download-btn">Download QR Code</button>
         </div>
         
-        <!-- UPI Payment Section -->
-        <div id="upi-payment">
-            <button id="upi-btn">Pay with UPI</button>
-            <div id="upi-qr" style="display: none; text-align: center;">
-                <img src="{{ url_for('static', filename='qr.jpg') }}" width="200" height="200" alt="UPI QR Code">
-                <p>Scan this QR code to make payment</p>
-            </div>
+        <!-- Razorpay Payment Section -->
+        <div id="razorpay-payment">
+            <button id="rzp-button">Pay with Razorpay</button>
         </div>
     </div>
 
     <script>
         const foodItems = [
-            { id: 1, name: "Tomato Rice", price: 30 }
+            { id: 1, name: "Tomato Rice", price: 30 },
+            { id: 2, name: "Paneer Butter Masala", price: 120 },
+            { id: 3, name: "Chicken Biryani", price: 180 },
+            { id: 4, name: "Veg Fried Rice", price: 90 },
+            { id: 5, name: "Gulab Jamun", price: 40 }
         ];
 
         function initFoodMenu() {
@@ -210,16 +414,19 @@
                 div.className = 'food-item';
                 div.innerHTML = 
                     `<span>${item.name} (₹${item.price})</span>
-                    <button onclick="changeQty(this, -1)">-</button>
-                    <span class="qty">0</span>
-                    <button onclick="changeQty(this, 1)">+</button>`;
+                    <div>
+                        <button onclick="changeQty(this, -1)">-</button>
+                        <span class="qty">0</span>
+                        <button onclick="changeQty(this, 1)">+</button>
+                    </div>`;
                 div.dataset.price = item.price;
+                div.dataset.name = item.name;
                 foodList.appendChild(div);
             });
         }
 
         function changeQty(btn, change) {
-            const item = btn.parentElement;
+            const item = btn.parentElement.parentElement;
             const qty = item.querySelector('.qty');
             let newQty = parseInt(qty.textContent) + change;
             newQty = newQty < 0 ? 0 : newQty;
@@ -230,7 +437,7 @@
         function updateTotal() {
             let total = 0;
             document.querySelectorAll('.food-item').forEach(item => {
-                total += parseInt(item.dataset.price) * parseInt(item.querySelector('.qty').textContent);
+                total += parseFloat(item.dataset.price) * parseInt(item.querySelector('.qty').textContent);
             });
             document.getElementById('total-price').textContent = `Total: ₹${total}`;
             document.getElementById('order-btn').disabled = total <= 0;
@@ -281,7 +488,7 @@
                     throw new Error('QR code not received');
                 }
 
-                showConfirmation(result.order_id, result.qr_code);
+                showConfirmation(result.order_id, result.qr_code, result.amount);
                 
             } catch (error) {
                 showError(error.message);
@@ -298,8 +505,8 @@
                 const qty = parseInt(item.querySelector('.qty').textContent);
                 if (qty > 0) {
                     items.push({
-                        name: item.querySelector('span').textContent.split(' (')[0],
-                        price: parseInt(item.dataset.price),
+                        name: item.dataset.name,
+                        price: parseFloat(item.dataset.price),
                         quantity: qty
                     });
                 }
@@ -307,20 +514,64 @@
             return items;
         }
 
-        function showConfirmation(orderId, qrCode) {
+        function showConfirmation(orderId, qrCode, amount) {
             document.getElementById('order-id-display').textContent = `Order ID: ${orderId}`;
             document.getElementById('qr-code').innerHTML = 
                 `<img src="data:image/png;base64,${qrCode}" width="200" height="200">`;
             document.getElementById('confirmation').style.display = 'block';
-            document.getElementById('upi-payment').style.display = 'block';
             
             document.getElementById('download-btn').onclick = function() {
                 downloadQRCode(qrCode, orderId);
             };
             
-            // Scroll to confirmation and reset form
-            window.scrollTo(0, document.body.scrollHeight);
-            resetOrderForm();
+            // Setup Razorpay payment
+            document.getElementById('rzp-button').onclick = async function() {
+                try {
+                    const response = await fetch('/api/create_razorpay_order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            order_id: orderId,
+                            amount: amount
+                        })
+                    });
+                    
+                    const orderData = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(orderData.error || 'Payment initialization failed');
+                    }
+                    
+                    const options = {
+                        key: "{{ razorpay_key_id }}",
+                        amount: orderData.amount,
+                        currency: "INR",
+                        name: "Food Dispenser",
+                        order_id: orderData.id,
+                        handler: function(response) {
+                            alert(`Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+                        },
+                        theme: {
+                            color: "#7b1fa2"
+                        },
+                        modal: {
+                            ondismiss: function() {
+                                console.log("Payment modal closed");
+                            }
+                        }
+                    };
+                    
+                    const rzp = new Razorpay(options);
+                    rzp.open();
+                    
+                } catch (error) {
+                    showError(error.message);
+                    console.error('Razorpay error:', error);
+                }
+            };
+            
+            // Scroll to confirmation
+            document.getElementById('confirmation').scrollIntoView({ behavior: 'smooth' });
         }
 
         function downloadQRCode(qrCode, orderId) {
@@ -332,22 +583,9 @@
             document.body.removeChild(link);
         }
 
-        function resetOrderForm() {
-            document.querySelectorAll('.food-item .qty').forEach(qty => {
-                qty.textContent = '0';
-            });
-            updateTotal();
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             initFoodMenu();
             document.getElementById('order-btn').addEventListener('click', placeOrder);
-            
-            // Add UPI button click handler
-            document.getElementById('upi-btn').addEventListener('click', function() {
-                const upiQr = document.getElementById('upi-qr');
-                upiQr.style.display = upiQr.style.display === 'none' ? 'block' : 'none';
-            });
         });
     </script>
 </body>
