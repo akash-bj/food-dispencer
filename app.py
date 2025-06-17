@@ -49,8 +49,8 @@ except Exception as e:
 
 # Initialize Razorpay
 razorpay_client = razorpay.Client(auth=(
-    os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_YOUR_KEY_ID'),
-    os.environ.get('RAZORPAY_KEY_SECRET', 'YOUR_KEY_SECRET')
+    os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_grC8eQKnPL680R'),
+    os.environ.get('RAZORPAY_KEY_SECRET', 'kA3eCtMZqg$57Gb!vMbnr2eFxsQ4c9eP')
 ))
 
 # Helper Functions
